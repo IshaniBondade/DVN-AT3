@@ -118,6 +118,11 @@ def render(df, df_all):
         "presumes a model has systemic risk.",
     )
 
+    # Guard: the global filters can leave no rows at all (e.g. every sector removed)
+    if df.empty:
+        st.warning("No models match the current filters. Widen the year range or add a sector.")
+        return
+
     frontier, counts = count_orgs_per_year(df, 10 ** exponent)
     full = counts[counts["status"] == "Full year"]
 
@@ -165,11 +170,10 @@ def render(df, df_all):
 
     # Verification helper: the rows behind any year's number
     with st.expander("Show the data behind a number"):
+        # Only offer years that have data; open on the most recent one.
+        # (The latest full year may have no data under some filters, e.g. Academia only.)
         years = counts.loc[counts["n_organisations"] > 0, "year"].tolist()
-        default_year = int(latest["year"])
-        year = st.selectbox(
-            "Year", years, index=years.index(default_year), key="orgs_year"
-        )
+        year = st.selectbox("Year", years, index=len(years) - 1, key="orgs_year")
         rows = frontier[frontier["year"] == year].sort_values(["org", "pub_date"])
         rows = rows.assign(pub_date=pd.to_datetime(rows["pub_date"]))  # works whether dates are text or dates
         st.markdown(
