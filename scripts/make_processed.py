@@ -13,7 +13,7 @@ OUT = Path("data/processed/models_clean.csv")
 # into one parent so each parent's share is not understated.
 ALIASES = {
     "DeepMind": "Google", "Google DeepMind": "Google", "Google Research": "Google",
-    "Google Brain": "Google",
+    "Google Brain": "Google", "Google Cloud": "Google",
     "Meta AI": "Meta", "Facebook": "Meta", "Facebook AI Research": "Meta",
     "Facebook AI": "Meta",
     "Microsoft Research": "Microsoft", "Microsoft Research Asia": "Microsoft",

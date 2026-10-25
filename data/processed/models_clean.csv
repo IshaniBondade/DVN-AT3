@@ -519,7 +519,7 @@ ProtT5-XL-U50,2021-05-04,"Technical University of Munich,Med AI Technology,Nvidi
 ProtBERT-BFD,2021-05-04,"Technical University of Munich,Nvidia,Seoul National University,Google,Oak Ridge National Laboratory,Med AI Technology",Biology,420000000.0,3.9e+22,False,Open weights (unrestricted),2021,Technical University of Munich,6,Industry + Academia,Germany,True,False
 ADM,2021-05-11,OpenAI,Image generation,559000000.0,6.2e+21,False,Open weights (non-commercial),2021,OpenAI,1,Industry,United States of America,True,False
 MedBERT,2021-05-20,"Peng Cheng Laboratory,University of Texas at Houston",Medicine,17000000.0,9.47e+18,False,Unreleased,2021,Peng Cheng Laboratory,2,Academia,China,True,False
-Transformer local-attention (NesT-B),2021-05-26,"Google Cloud,Google Research",Vision,90100000.0,2.40576e+19,False,Open weights (unrestricted),2021,Google Cloud,2,Industry,United States of America,True,False
+Transformer local-attention (NesT-B),2021-05-26,"Google Cloud,Google Research",Vision,90100000.0,2.40576e+19,False,Open weights (unrestricted),2021,Google,2,Industry,United States of America,True,False
 CogView,2021-05-26,"Tsinghua University,Alibaba DAMO Academy",Image generation,4000000000.0,2.68e+22,False,Open weights (unrestricted),2021,Tsinghua University,2,Industry + Academia,China,True,False
 ByT5-XXL,2021-05-28,"Google,Google Research",Language,12900000000.0,8.1e+22,False,Open weights (unrestricted),2021,Google,2,Industry,United States of America,True,False
 ViT-G/14,2021-06-08,"Google Brain,Google Research",Vision,1843000000.0,5.85e+22,False,Unreleased,2021,Google,2,Industry,United States of America,True,False
