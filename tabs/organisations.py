@@ -175,8 +175,13 @@ def render(df, df_all):
         "presumes a model has systemic risk.",
     )
 
-    frontier, counts = count_orgs_per_year(df, 10 ** exponent)
-    full = counts[counts["status"] == "Full year"]
+    # Guard: the global filters can leave no rows at all (e.g. every sector removed)
+    if df.empty:
+        st.warning("No models match the current filters. Widen the year range or add a sector.")
+        return
+
+    frontier, counts = count_orgs_per_year(df, df_all, 10 ** exponent)
+    full = counts[~counts["partial"]]
 
     if full["n_organisations"].sum() == 0:
         st.warning(f"No models at or above {short(exponent)} match the current filters. "
