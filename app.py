@@ -12,7 +12,8 @@ df_all = load_data()
 hero("Data Narrative Studio · Artificial Intelligence",
      "Who Controls the AI Frontier?",
      "Is frontier AI development concentrating in fewer organisations, or spreading out?",
-     "An interactive look at who builds notable AI models, how much compute they use, and where.")
+     "Notable = models in Epoch AI's notable-models list. Frontier = the subset Epoch flags as frontier "
+     "(tick the box below). The default view shows all notable models.")
 
 # ---------- shared filters ----------
 c1, c2, c3 = st.columns([2, 2, 1])

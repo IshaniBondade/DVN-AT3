@@ -64,6 +64,6 @@ assert df["pub_date"].notna().all(), "unparseable dates"
 assert int(df["frontier"].sum()) == int(raw["Frontier model"].eq(True).sum())
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
-df.sort_values("pub_date").to_csv(OUT, index=False)
+df.sort_values("pub_date", kind="stable").to_csv(OUT, index=False)
 print(f"wrote {OUT}: {len(df)} rows, {df['compute_reported'].sum()} with compute, "
       f"{df['frontier'].sum()} frontier, dates {df['pub_date'].min().date()} to {df['pub_date'].max().date()}")
