@@ -1,0 +1,20 @@
+{
+  "dataset": "Epoch AI — Notable AI Models",
+  "source_url": "https://epoch.ai/data/notable_ai_models.csv",
+  "dataset_page": "https://epoch.ai/data/ai-models",
+  "snapshot_date": "2026-10-26",
+  "license": "CC BY 4.0",
+  "raw_records": 1082,
+  "raw_columns": 47,
+  "analysis_years": [
+    2011,
+    2025
+  ],
+  "raw_file": "raw/notable_ai_models.csv",
+  "raw_sha256": "dcd97028735d9d985b3ffab6bb19e0e711b400c5c513a4c8dc4acf7fe6a728f5",
+  "geometry_source": "https://esm.sh/@d3-maps/atlas@1.0.0/world/countries/countries-110m",
+  "geometry_package": "@d3-maps/atlas@1.0.0",
+  "geometry_license": "MIT",
+  "geometry_transform": "TopoJSON objects.features to GeoJSON using topojson-client 3.1.0; Antarctica omitted; coordinates rounded to two decimals",
+  "d3_version": "7.9.0"
+}

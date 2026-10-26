@@ -1,0 +1,20 @@
+# App settings. Streamlit's own theme lives in .streamlit/config.toml.
+[data]
+raw = "data/raw/notable_ai_models.csv"
+processed = "data/processed/models_clean.csv"
+geometry = "data/geo/world.geojson"
+country_codes = "data/geo/country_codes.json"
+snapshot_date = "2026-10-26"
+source_url = "https://epoch.ai/data/notable_ai_models.csv"
+
+[analysis]
+periods = [[2011, 2015], [2016, 2020], [2021, 2025]]
+default_period = 2
+default_countries = ["United States", "China", "United Kingdom"]
+default_type = "Language"
+max_selected_countries = 4
+leading_countries = 5
+
+# Optional canonical -> actual column names for the team's processed CSV.
+# Example: publication_date = "release_date"
+[columns]

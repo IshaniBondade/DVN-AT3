@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+html,body{margin:0;padding:0;font:12px/1.45 Arial,sans-serif;background:transparent}*{box-sizing:border-box}#world-map{position:relative;height:325px;width:100%;background:#e9eff7;border-radius:8px;overflow:hidden}svg{display:block;width:100%;height:325px}.country{stroke:#eff4fa;stroke-width:.6}.country:hover{stroke:#10253f;stroke-width:1.5}.country.selected{stroke:#f6a329;stroke-width:1.8}#tip{position:absolute;pointer-events:none;padding:10px 12px;background:#fff;color:#172c44;border-radius:6px;box-shadow:0 3px 15px #0003;max-width:260px;width:240px;z-index:2;overflow-wrap:anywhere}#tip strong{font-size:15px}#tip p{font-size:11px;color:#405975;margin:5px 0 0}.legend{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;color:#b4c5dd;padding-top:10px;font-size:11px}.gradient{width:120px;height:9px;background:linear-gradient(to right,#d8eaf7,#7fb3de 20%,#397dbd 50%,#173f74)}.grey{display:inline-block;width:12px;height:9px;background:#cbd2da;margin-left:5px}button{font:inherit}
+</style></head>
+<body><div id="world-map"><div id="tip" role="tooltip" hidden></div></div><div class="legend"><span>Global share</span><span>0%</span><span class="gradient"></span><span>100%</span><span class="grey"></span><span>No records</span></div>
+<script>__D3_SOURCE__</script>
+<script type="application/json" id="map-data">__MAP_DATA__</script>
+<script>
+(()=>{
+ const data=JSON.parse(document.getElementById('map-data').textContent),root=document.getElementById('world-map'),tip=document.getElementById('tip');
+ const names=Object.fromEntries(Object.entries(data.codes).map(([name,iso])=>[iso,name])),stats=Object.fromEntries(data.summary.map(row=>[row.country,row]));
+ const color=d3.scaleLinear().domain([0,20,50,100]).range(['#d8eaf7','#7fb3de','#397dbd','#173f74']);
+ const svg=d3.select(root).insert('svg','#tip').attr('role','img').attr('aria-label','Global notable AI model shares by developer country or region. Darker blue means a larger share. Use the country controls below the map to select locations.');
+ function text(tag,value){const node=document.createElement(tag);node.textContent=value;return node}
+ function detail(event,feature){const country=names[feature.properties.id]||feature.properties.name,row=stats[country]||{},share=(row.share||0)*100;
+  tip.replaceChildren(text('strong',country),text('div',share.toFixed(1)+'% of global model credit'),text('div',(row.associated_models||0)+' associated model records'),text('div',(row.organisation_labels||0)+' organisation labels*'),text('p','Top developers: '+(row.top_developers||'None recorded')),text('p',data.period+' · *single-origin records'));
+  tip.hidden=false;const [x,y]=d3.pointer(event,root);tip.style.left=Math.max(3,Math.min(root.clientWidth-tip.offsetWidth-3,x+12))+'px';tip.style.top=Math.max(3,Math.min(root.clientHeight-tip.offsetHeight-3,y-25))+'px';
+ }
+ function draw(){const w=root.clientWidth,h=root.clientHeight;if(!w)return;const projection=d3.geoNaturalEarth1().fitExtent([[8,8],[w-8,h-8]],data.world),path=d3.geoPath(projection);svg.attr('viewBox',`0 0 ${w} ${h}`);svg.selectAll('path').data(data.world.features).join('path').attr('d',path).attr('data-country',d=>names[d.properties.id]||d.properties.name).attr('class',d=>'country'+(data.selected&&data.selected.includes(names[d.properties.id])?' selected':'')).attr('fill',d=>{const s=stats[names[d.properties.id]];return s?color(s.share*100):'#cbd2da'}).attr('opacity',d=>data.selected&&!data.selected.includes(names[d.properties.id])?.24:1).on('pointermove',detail).on('click',detail).on('pointerleave',()=>tip.hidden=true);}
+ let width=0,frame=0;const observer=new ResizeObserver(entries=>{const w=Math.round(entries[0].contentRect.width);if(w===width)return;width=w;if(frame)cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{frame=0;draw()})});observer.observe(root);draw();
+})();
+</script></body></html>
