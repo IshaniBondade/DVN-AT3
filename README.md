@@ -2,7 +2,7 @@
 # Who Controls the AI Frontier?
 
 ## Research Question
-**Is frontier AI development concentrating in fewer organisations, or is capability spreading out across a wider field?**
+**Is frontier AI development concentrating in fewer organisations, or spreading out?**
 
 This question is arguable because the data supports two competing interpretations depending on the metric chosen: counting notable model releases suggests a broadening ecosystem with over 230 contributing institutions, whereas measuring total training compute reveals heavy oligopolistic concentration among a handful of frontier labs.
 
@@ -22,8 +22,8 @@ This question is arguable because the data supports two competing interpretation
 ---
 
 ## Repository Structure
-* `app.py` — Main Streamlit entry point, global filters, and narrative layout.
-* `common.py` — Shared data loaders, filter state handlers, and empty-state guards.
+* `app.py` — Main Streamlit entry point, global filters, empty-state guards, and narrative layout.
+* `common.py` — Shared data loaders, constants, and colour-blind-safe palette.
 * `theme.py` & `.streamlit/config.toml` — Dark UI styling and Okabe-Ito colour-vision-deficiency-safe palette.
 * `tabs/` — Modular views for `overview.py`, `organisations.py`, `compute.py`, `geography.py`, and `methods.py`.
 * `data/raw/` — Source Epoch AI CSV extract (`notable_ai_models.csv`) and licensing metadata (`EPOCH_README.md`).
@@ -39,3 +39,4 @@ This question is arguable because the data supports two competing interpretation
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
+```

@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 DATA_PATH = Path("data/processed/models_clean.csv")
-DATA_DOWNLOADED = "19 Oct 2026"          # EDIT: the day you downloaded the raw file
+DATA_DOWNLOADED = "19 Oct 2026"          # The day we downloaded the raw file
 DATA_LATEST_OBS = "30 Sep 2026"          # latest publication date in the data
 SOURCE_LINE = (
     "Source: Epoch AI, 'Data on AI models'. Published online at epoch.ai. "

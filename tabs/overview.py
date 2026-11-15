@@ -12,6 +12,12 @@ def render(df, df_all):
     leader, leader_share = counts.index[0], counts.iloc[0] / counts.sum() * 100
     y0, y1 = int(df["year"].min()), int(df["year"].max())
 
+    callout("<b>Our answer:</b> Both, depending on what you count. By number of organisations the frontier is "
+            "spreading: 17 organisations released a model trained with at least 10<sup>23</sup> FLOP in 2025, up from 2 in 2020. "
+            "By compute it is concentrated: since 2018 the top five organisations by compute (OpenAI, xAI, Meta, Google, "
+            "Anthropic) used about 85% of all reported training compute but released about 37% of the models. "
+            "Compute figures cover only the models that report it (about half). See the Organisations and Compute tabs.")
+    
     # data-driven summary: every number comes from the current selection
     period = f"{y0}" if y0 == y1 else f"{y0}–{y1}"
     n_orgs = len(counts)
