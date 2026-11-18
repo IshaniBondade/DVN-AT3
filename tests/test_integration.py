@@ -12,7 +12,8 @@ def test_shared_pipeline_preserves_source_fields():
     raw = pd.read_csv(ROOT / "data/raw/notable_ai_models.csv", keep_default_na=False)
     processed = pd.read_csv(ROOT / "data/processed/models_clean.csv", keep_default_na=False).sort_values("source_record")
     assert len(processed) == len(raw)
-    for source, output in [("Country (of organization)", "country_raw"), ("Organization", "org_raw"), ("Model accessibility", "accessibility"), ("Open model weights?", "open_model_weights")]:
+    assert processed["source_record"].tolist() == list(range(1, len(raw) + 1))
+    for source, output in [("Country (of organization)", "country_raw"), ("Organization", "org_raw"), ("Model accessibility", "accessibility"), ("Open model weights?", "open_model_weights"), ("Task", "task"), ("Link", "link")]:
         assert raw[source].tolist() == processed[output].tolist()
     models = normalize_models(geography_models(processed))
     assert country_summary(models)["share"].sum() == pytest.approx(1)

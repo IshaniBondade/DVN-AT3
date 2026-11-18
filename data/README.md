@@ -4,15 +4,15 @@
 
 - Dataset: Notable AI models, from [Epoch AI](https://epoch.ai/data/ai-models).
 - Download: <https://epoch.ai/data/notable_ai_models.csv>.
-- Snapshot date: 26 October 2026.
+- Snapshot date: 19 October 2026, matching the group's `main` branch.
 - Raw file: `raw/notable_ai_models.csv`; unchanged source bytes.
 - Source licence: CC BY 4.0. Attribution: Epoch AI, Notable AI Models database.
-- Raw SHA-256: `dcd97028735d9d985b3ffab6bb19e0e711b400c5c513a4c8dc4acf7fe6a728f5`.
-- Raw rows: 1,082; raw columns: 47.
+- Raw SHA-256: `3ef26619430a93ee4d126bc46e91699fe6f2b15ea7b8e830f0a565e32caaa224`.
+- Raw rows: 1,078; raw columns: 47.
 
-The processed file selects the model, developer, publication date, country, domain, task and link fields. It adds a stable record ID derived from the model name, organisation and date, plus the source record's 1-based ordinal. A source record ordinal is not a physical text-file line number because CSV fields may contain newlines.
+The shared processed file contains 1,078 records and 20 columns. It retains main's 15 fields and common cleaning rules, plus `country_raw`, `task`, `link`, `open_model_weights` and `source_record`. The source record is the raw record's 1-based ordinal, not a physical text-file line number because CSV fields may contain newlines. Geography creates its stable hashed record ID and fractional country credits in memory; those are not additional columns in the saved CSV. See `DATA_DICTIONARY.md` for all 20 saved fields and the subsequent transformations.
 
-Run `python -m src.pipeline build` from the feature root to reproduce it. This changes the processed file and validation report, not the raw snapshot. The app never silently fetches a newer dataset.
+Run `python -m src.pipeline build` from this repository root to reproduce it. This runs the existing `scripts/make_processed.py` and refreshes the processed file, source metadata and validation report, including both file hashes. It does not change the raw snapshot. The app never silently fetches a newer dataset. There is one active raw model CSV and one processed model CSV; the geometry files are separate map support assets.
 
 The 2011–2025 comparison contains 858 model records, including one without an origin. The 2021–2025 period contains 494 records with known origins and 18 AI-type tags. No demo values are invented.
 

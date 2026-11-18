@@ -104,7 +104,7 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
     with st.container(border=True):
         title_col, period_col = st.columns([2.4, 1])
         title_col.subheader(content["sections"]["map"])
-        title_col.caption("Hover for country shares, model counts and developer context.")
+        title_col.caption("Country shares and model counts are listed below the map. Hover for developer context.")
         with period_col:
             period_index = st.selectbox("Models published during", list(range(len(periods))), format_func=lambda i: f"{periods[i][0]}–{periods[i][1]}", key=prefix + "period")
         start, end = periods[period_index]
@@ -134,6 +134,17 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
         omitted = [c for c in summary["country"] if codes.get(c) not in mapped]
         if omitted:
             st.caption("Included in totals but absent from this map’s polygons: " + ", ".join(omitted) + ".")
+        shown_summary = summary if selected is None else summary.loc[summary["country"].isin(selected)]
+        if not shown_summary.empty:
+            values = shown_summary[["country", "share", "credit", "associated_models"]].copy()
+            values["share"] = values["share"].map(lambda value: f"{value:.2%}")
+            values["credit"] = values["credit"].map(lambda value: f"{value:.2f}")
+            values = values.rename(columns={"country": "Country / region", "share": "Global share",
+                                            "credit": "Model credits", "associated_models": "Associated models"})
+            st.markdown("**Leading country values**" if selected is None else "**Selected country values**")
+            st.table(values.head(5).set_index("Country / region"))
+            with st.expander("All map values — readable without hovering"):
+                st.dataframe(values, hide_index=True, width="stretch")
     with st.container(border=True):
         st.subheader("Model accessibility · open weights")
         st.caption(f"{period_label} · all AI types · global country coverage")
@@ -170,6 +181,15 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
         trend = shares_over_time(models, periods, compare)
         st.plotly_chart(trend_chart(trend, compare, periods, period_index), use_container_width=True, theme=None, config=PLOT_CONFIG, key=prefix + "trend", on_select=lambda: _select_period(prefix), selection_mode="points")
         st.caption(f"Map period: {period_label} · click a column to change the shared period.")
+        period_labels = [f"{a}–{b}" for a, b in periods]
+        trend_values = trend.pivot(index="country", columns="period", values="share").reindex(
+            index=[*compare, "Other origins"], columns=period_labels)
+        trend_values = trend_values.apply(lambda column: column.map(
+            lambda value: "No data" if pd.isna(value) else f"{value:.1%}"))
+        trend_values.index.name = "Country / region"
+        trend_values.columns.name = None
+        st.caption("All chart segments · global share (%). No data means no known-origin records in that period.")
+        st.table(trend_values)
         first = country_summary(in_period(models, *periods[0]))
         last = country_summary(latest)
         if compare and not first.empty and not last.empty:
@@ -228,4 +248,4 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
         st.write("Geography follows developers’ source affiliations, not training hardware location, ownership or national capability. Map organisation labels and top developers use single-origin records only; the source does not reliably pair each organisation with each country for joint records. Aliases are not consolidated.")
         st.write("The map and time chart cover all AI types. The type selector affects only the type distribution and model details. Model versions and previews remain separate records.")
         st.json(models.attrs.get("validation", {}), expanded=False)
-    st.caption("Epoch AI · CC BY 4.0 · Published world geometry · Country/region labels follow the source")
+    st.caption(f"Epoch AI · CC BY 4.0 · Snapshot: {config['data']['snapshot_date']} · Country/region labels follow the source")

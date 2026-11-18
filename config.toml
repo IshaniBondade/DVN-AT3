@@ -4,7 +4,7 @@ raw = "data/raw/notable_ai_models.csv"
 processed = "data/processed/models_clean.csv"
 geometry = "data/geo/world.geojson"
 country_codes = "data/geo/country_codes.json"
-snapshot_date = "2026-10-26"
+snapshot_date = "2026-10-19"
 source_url = "https://epoch.ai/data/notable_ai_models.csv"
 
 [analysis]

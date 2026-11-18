@@ -1,20 +1,26 @@
 {
-  "dataset": "Epoch AI — Notable AI Models",
+  "dataset": "Epoch AI \u2014 Notable AI Models",
   "source_url": "https://epoch.ai/data/notable_ai_models.csv",
   "dataset_page": "https://epoch.ai/data/ai-models",
-  "snapshot_date": "2026-10-26",
+  "snapshot_date": "2026-10-19",
   "license": "CC BY 4.0",
-  "raw_records": 1082,
+  "raw_records": 1078,
   "raw_columns": 47,
   "analysis_years": [
     2011,
     2025
   ],
   "raw_file": "raw/notable_ai_models.csv",
-  "raw_sha256": "dcd97028735d9d985b3ffab6bb19e0e711b400c5c513a4c8dc4acf7fe6a728f5",
+  "raw_sha256": "3ef26619430a93ee4d126bc46e91699fe6f2b15ea7b8e830f0a565e32caaa224",
   "geometry_source": "https://esm.sh/@d3-maps/atlas@1.0.0/world/countries/countries-110m",
   "geometry_package": "@d3-maps/atlas@1.0.0",
   "geometry_license": "MIT",
   "geometry_transform": "TopoJSON objects.features to GeoJSON using topojson-client 3.1.0; Antarctica omitted; coordinates rounded to two decimals",
-  "d3_version": "7.9.0"
+  "d3_version": "7.9.0",
+  "processed_records": 1078,
+  "processed_columns": 20,
+  "processed_file": "processed/models_clean.csv",
+  "processed_sha256": "209dacf63203346e510cbc3c71676076ecc55a3f64098ab96e2044e269a39468",
+  "latest_observation": "2026-09-30",
+  "transform": "scripts/make_processed.py"
 }
