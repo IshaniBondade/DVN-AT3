@@ -65,7 +65,7 @@
 
 ## 3. Geography calculations and map assets
 
-Geography uses `country_raw` to retain all affiliations. `src/data.py` normalises country aliases and deduplicates tags before calculating results in memory. See the [Geography README section](../README.md#geography-tab) for shares, periods, filters and accessibility logic.
+Geography uses `country_raw` to retain all affiliations. `src/data.py` normalises country aliases and deduplicates tags before calculating results in memory. See the [Geography README](../README_Geography.md) for shares, periods, filters and accessibility logic.
 
 - `data/geo/country_codes.json`: source country labels mapped to ISO3 codes, keyed by label.
 - `data/geo/world.geojson`: static country polygons keyed by `properties.id` (ISO3), with longitude/latitude coordinates in degrees. Source: `@d3-maps/atlas@1.0.0`, MIT licence. Transform: TopoJSON to GeoJSON using `topojson-client 3.1.0`; Antarctica omitted; coordinates rounded to two decimals. Source URL is recorded in `source-metadata.json`. These assets have no observation dates. Singapore and Hong Kong remain in totals without map polygons.
