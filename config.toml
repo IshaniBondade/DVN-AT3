@@ -8,7 +8,7 @@ snapshot_date = "2026-10-19"
 source_url = "https://epoch.ai/data/notable_ai_models.csv"
 
 [analysis]
-periods = [[2011, 2015], [2016, 2020], [2021, 2025]]
+periods = [[2012, 2016], [2017, 2021], [2022, 2026]]
 default_period = 2
 default_countries = ["United States", "China", "United Kingdom"]
 default_type = "Language"

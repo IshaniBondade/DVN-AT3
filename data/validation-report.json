@@ -10,38 +10,38 @@
   "periods": [
     {
       "period": [
-        2011,
-        2015
+        2012,
+        2016
       ],
-      "records": 105,
-      "known_origin_records": 104,
+      "records": 143,
+      "known_origin_records": 142,
       "excluded_missing_origin": 1,
-      "named_origins": 14,
-      "credit_sum": 103.99999999999999,
-      "share_sum": 1.0
+      "named_origins": 17,
+      "credit_sum": 142.00000000000003,
+      "share_sum": 0.9999999999999999
     },
     {
       "period": [
-        2016,
-        2020
+        2017,
+        2021
       ],
-      "records": 259,
-      "known_origin_records": 259,
+      "records": 289,
+      "known_origin_records": 289,
       "excluded_missing_origin": 0,
-      "named_origins": 26,
-      "credit_sum": 258.99999999999994,
-      "share_sum": 1.0
+      "named_origins": 25,
+      "credit_sum": 288.99999999999994,
+      "share_sum": 1.0000000000000002
     },
     {
       "period": [
-        2021,
-        2025
+        2022,
+        2026
       ],
-      "records": 494,
-      "known_origin_records": 494,
-      "excluded_missing_origin": 0,
-      "named_origins": 21,
-      "credit_sum": 493.99999999999983,
+      "records": 499,
+      "known_origin_records": 498,
+      "excluded_missing_origin": 1,
+      "named_origins": 20,
+      "credit_sum": 497.99999999999994,
       "share_sum": 1.0
     }
   ],

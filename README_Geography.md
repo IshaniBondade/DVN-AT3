@@ -8,7 +8,7 @@ Explore where notable AI models are developed, compare country shares across fiv
 | --- | --- |
 | World map | Shows country shares for the selected period, with values available below the map. |
 | Country tables | Show the five leading origins or up to four selected countries. **All map values** opens the full list. |
-| Shares over time | Compares the three leading countries from 2021–2025, or selected countries, across three periods. **Other origins** contains the remaining share. Click a column to change period. |
+| Shares over time | Compares the three leading countries from 2022–2026, or selected countries, across three periods. **Other origins** contains the remaining share. Click a column to change period. |
 | AI types and model details | Select an AI type, then click a country bar to inspect models and download their records. |
 | Accessibility | Compares country counts by weight status. Expand **Accessibility and counting** for global metrics, detailed categories and the counting note. |
 
@@ -24,7 +24,9 @@ Missing origins are excluded from shares; **Multinational** remains in the total
 
 ## Five-year periods and filters
 
-The year is extracted from **Publication date**. **2011–2015, 2016–2020 and 2021–2025** include both boundary years. Each window pools its records; totals are neither cumulative nor averages of annual shares. The default is 2021–2025.
+The year is extracted from **Publication date**. **2012–2016, 2017–2021 and 2022–2026** include both boundary years. Each window pools its records; totals are neither cumulative nor averages of annual shares. The default is 2022–2026. **2026 is partial, through 30 September.**
+
+Records begin in 1950, but earlier years are sparsely represented; this view focuses on 2012–2026.
 
 Shared **year, sector and frontier filters** apply throughout. The period selector controls the map, accessibility, types and details; the time chart compares all three windows. A narrower year filter can leave windows partial or empty.
 

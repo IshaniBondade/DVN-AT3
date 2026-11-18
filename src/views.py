@@ -139,14 +139,20 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
         geometry = _read_json(str(geometry_path), geometry_path.stat().st_mtime_ns)
         codes = _read_json(str(codes_path), codes_path.stat().st_mtime_ns)
         render_map(summary, geometry, codes, selected, period_label)
+        known_count = int(snapshot["countries"].map(len).gt(0).sum())
+        missing = len(snapshot) - known_count
+        caption(f"{period_label} · Shared filters apply")
+        total_metric, known_metric, missing_metric = st.columns(3)
+        total_metric.metric("Total models", f"{len(snapshot):,}")
+        known_metric.metric("With country data", f"{known_count:,}")
+        missing_metric.metric("Without country data", f"{missing:,}")
+        if end == 2026:
+            caption("2026 is partial (through 30 September).")
         st.radio("Country view", ["Leading countries", "Select countries"], horizontal=True, key=prefix + "mode", label_visibility="collapsed")
         if st.session_state[prefix + "mode"] == "Select countries":
             st.multiselect("Choose countries / regions", available, max_selections=analysis["max_selected_countries"], key=prefix + "countries", placeholder="Choose up to four countries")
             if not selected:
                 st.info("Choose at least one country below the map, or switch to Leading countries.")
-        known_count = int(snapshot["countries"].map(len).gt(0).sum())
-        missing = len(snapshot) - known_count
-        caption(f"{len(snapshot):,} models" + (f" · {missing:,} without country data (excluded from shares)" if missing else ""))
         if not known_count:
             st.warning("No known-origin records in this period. Country shares are unavailable.")
         mapped = {feature["properties"]["id"] for feature in geometry["features"]}
@@ -196,7 +202,7 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
             st.info(f"Other origins: {outside_first:.1%} → {outside_last:.1%}. " + ("The highlighted countries gained combined share." if outside_last < outside_first else "The highlighted countries did not gain combined share."))
         with st.expander("Why five-year periods?"):
             sample = [{"Period": f"{a}–{b}", "Model records": len(in_period(models, a, b))} for a, b in periods]
-            st.write("Equal five-year windows reduce annual noise in sparse early data. They hide within-period changes and do not represent cumulative totals.")
+            st.write("Equal five-year windows reduce annual noise in sparse early data. They hide within-period changes and do not represent cumulative totals. 2026 is partial through 30 September.")
             st.dataframe(pd.DataFrame(sample), hide_index=True, width="stretch")
     with right, st.container(border=True):
         st.subheader(content["sections"]["types"])

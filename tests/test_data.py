@@ -128,27 +128,27 @@ def test_model_trace_reconciles_to_country_credit(synthetic):
 
 def test_snapshot_period_counts(snapshot):
     report = validate_dataset(snapshot, load_settings()["analysis"]["periods"])
-    assert [r["records"] for r in report["periods"]] == [105, 259, 494]
-    assert [r["known_origin_records"] for r in report["periods"]] == [104, 259, 494]
-    assert [r["named_origins"] for r in report["periods"]] == [14, 26, 21]
+    assert [r["records"] for r in report["periods"]] == [143, 289, 499]
+    assert [r["known_origin_records"] for r in report["periods"]] == [142, 289, 498]
+    assert [r["named_origins"] for r in report["periods"]] == [17, 25, 20]
 
 
 def test_snapshot_verified_shares_and_domains(snapshot):
-    recent = in_period(snapshot, 2021, 2025)
+    recent = in_period(snapshot, *load_settings()["analysis"]["periods"][-1])
     overall = country_summary(recent).set_index("country")
-    assert overall.loc["China", "share"] == pytest.approx(.22081646423751688)
-    assert overall.loc["China", "associated_models"] == 122
-    assert overall.loc["China", "organisation_labels"] == 35
+    assert overall.loc["China", "share"] == pytest.approx(.2431392235609103)
+    assert overall.loc["China", "associated_models"] == 130
+    assert overall.loc["China", "organisation_labels"] == 31
     language = country_summary(with_domain(recent, "Language")).set_index("country")
-    assert len(with_domain(recent, "Language")) == 328
-    assert language.loc["China", "share"] == pytest.approx(.2705792682926829)
-    assert language.loc["United States", "share"] == pytest.approx(.5691290650406504, abs=1e-6)
-    all_domains = {tag for tags in in_period(snapshot, 2011, 2025)["domains"] for tag in tags}
-    assert len(all_domains) == 18
+    assert len(with_domain(recent, "Language")) == 365
+    assert language.loc["China", "share"] == pytest.approx(.2918956043956044)
+    assert language.loc["United States", "share"] == pytest.approx(.5696178821178821, abs=1e-6)
+    all_domains = {tag for tags in in_period(snapshot, 2012, 2026)["domains"] for tag in tags}
+    assert len(all_domains) == 19
 
 
 def test_time_distributions_total_100_percent(snapshot):
-    table = shares_over_time(snapshot, [[2011, 2015], [2016, 2020], [2021, 2025]], ["United States", "China", "United Kingdom"])
+    table = shares_over_time(snapshot, load_settings()["analysis"]["periods"], ["United States", "China", "United Kingdom"])
     assert table.groupby("period")["share"].sum().tolist() == pytest.approx([1, 1, 1])
 
 

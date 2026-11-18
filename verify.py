@@ -2,6 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.settings import load_settings
+
 
 # Load the dataset.
 source = Path(__file__).resolve().parent / "data/raw/notable_ai_models.csv"
@@ -22,14 +24,16 @@ print()
 print("TOTAL MODEL RECORDS")
 print()
 
-for start, end in [(2011, 2015), (2016, 2020), (2021, 2025)]:
+periods = load_settings()["analysis"]["periods"]
+for start, end in periods:
     total = int(years.between(start, end).sum())
     print(f"{start}–{end}:  {total:,}")
     print()
 
 
-# Count open-weight models only for 2021–2025.
-selected = data.loc[years.between(2021, 2025)]
+# Count open-weight models for the latest configured period.
+start, end = periods[-1]
+selected = data.loc[years.between(start, end)]
 
 open_weights = (
     selected["Open model weights?"]
@@ -41,5 +45,5 @@ open_weights = (
 
 print("TOTAL OPEN-WEIGHT MODELS")
 print()
-print(f"2021–2025:  {int(open_weights.sum()):,}")
+print(f"{start}–{end}:  {int(open_weights.sum()):,}")
 print()
