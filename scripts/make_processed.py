@@ -6,8 +6,9 @@ One row per notable model. Nothing is dropped; missing values stay missing.
 from pathlib import Path
 import pandas as pd
 
-RAW = Path("data/raw/notable_ai_models.csv")
-OUT = Path("data/processed/models_clean.csv")
+ROOT = Path(__file__).resolve().parents[1]
+RAW = ROOT / "data/raw/notable_ai_models.csv"
+OUT = ROOT / "data/processed/models_clean.csv"
 
 # Judgement call, disclose it in the data dictionary: these names are merged
 # into one parent so each parent's share is not understated.
@@ -42,6 +43,11 @@ df = pd.DataFrame({
     "model": raw["Model"],
     "pub_date": pd.to_datetime(raw["Publication date"], errors="coerce"),
     "org_raw": raw["Organization"],
+    "country_raw": raw["Country (of organization)"],
+    "task": raw["Task"],
+    "link": raw["Link"],
+    "open_model_weights": raw.get("Open model weights?", ""),
+    "source_record": range(1, len(raw) + 1),
     "domain": raw["Domain"],
     "parameters": raw["Parameters"],
     "compute_flop": raw["Training compute (FLOP)"],

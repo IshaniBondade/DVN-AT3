@@ -5,6 +5,9 @@ from theme import BLUE, MUTED, TEXT, callout, card_header, style_chart
 def render(df, df_all):
     known = df[df["org"] != "Unknown"]
     n_unknown = len(df) - len(known)
+    if known.empty:
+        st.info("No known organisations in this selection. Adjust the shared filters to compare organisations.")
+        return
     # ties are broken alphabetically so the Top 5 / Next 5 split is stable and explainable
     counts = (known.groupby("org").size().rename("n").reset_index()
               .sort_values(["n", "org"], ascending=[False, True]).set_index("org")["n"])
@@ -17,7 +20,7 @@ def render(df, df_all):
             "By compute it is concentrated: since 2018 the top five organisations by compute (OpenAI, xAI, Meta, Google, "
             "Anthropic) used about 85% of all reported training compute but released about 37% of the models. "
             "Compute figures cover only the models that report it (about half). See the Organisations and Compute tabs.")
-    
+
     # data-driven summary: every number comes from the current selection
     period = f"{y0}" if y0 == y1 else f"{y0}–{y1}"
     n_orgs = len(counts)
@@ -68,4 +71,4 @@ def render(df, df_all):
                             scale=alt.Scale(domain=["Top 5", "Next 5"], range=[BLUE, MUTED])),
             tooltip=[alt.Tooltip("org:N", title="organisation"), "models", alt.Tooltip("share:Q", format=".1f", title="share %")])
         labels = base.mark_text(align="left", dx=8, color=TEXT, fontSize=13, fontWeight="bold").encode(text="label:N")
-        st.altair_chart(style_chart(bars + labels, height=max(40 * len(top) + 50, 230)), theme=None, width="stretch")
+        st.altair_chart(style_chart(bars + labels, height=max(40 * len(top) + 50, 230)), theme=None, use_container_width=True)

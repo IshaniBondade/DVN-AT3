@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-DATA_PATH = Path("data/processed/models_clean.csv")
+DATA_PATH = Path(__file__).resolve().parent / "data/processed/models_clean.csv"
 DATA_DOWNLOADED = "19 Oct 2026"          # The day we downloaded the raw file
 DATA_LATEST_OBS = "30 Sep 2026"          # latest publication date in the data
 SOURCE_LINE = (

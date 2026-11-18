@@ -67,7 +67,7 @@ def card_header(title, sub=""):
                 unsafe_allow_html=True)
 
 def style_chart(chart, height=380):
-    """Dark, clean Altair styling. Use: st.altair_chart(style_chart(ch), theme=None, width='stretch')."""
+    """Dark, clean Altair styling. Use: st.altair_chart(style_chart(ch), theme=None, use_container_width=True)."""
     return (chart.properties(height=height, background="transparent")
             .configure_view(stroke=None)
             .configure_axis(labelColor="#C9D8F5", titleColor=SUBTLE, labelFontSize=13, titleFontSize=13, titleFontWeight="normal",

@@ -1,0 +1,9 @@
+title: Who Controls the AI Frontier?
+feature: Geography
+branch: feature/geography
+question: Which countries are gaining ground, and is development spreading?
+sections:
+  map: Global share of notable AI models
+  trend: Are country shares shifting?
+  types: Where is each type of AI developed?
+  records: Explore the models

@@ -1,0 +1,51 @@
+{
+  "validation": {
+    "input_records": 1078,
+    "exact_duplicates_removed": 0,
+    "invalid_dates_excluded": 0,
+    "usable_records": 1078,
+    "missing_country_records": 19,
+    "missing_domain_records": 3
+  },
+  "periods": [
+    {
+      "period": [
+        2012,
+        2016
+      ],
+      "records": 143,
+      "known_origin_records": 142,
+      "excluded_missing_origin": 1,
+      "named_origins": 17,
+      "credit_sum": 142.00000000000003,
+      "share_sum": 0.9999999999999999
+    },
+    {
+      "period": [
+        2017,
+        2021
+      ],
+      "records": 289,
+      "known_origin_records": 289,
+      "excluded_missing_origin": 0,
+      "named_origins": 25,
+      "credit_sum": 288.99999999999994,
+      "share_sum": 1.0000000000000002
+    },
+    {
+      "period": [
+        2022,
+        2026
+      ],
+      "records": 499,
+      "known_origin_records": 498,
+      "excluded_missing_origin": 1,
+      "named_origins": 20,
+      "credit_sum": 497.99999999999994,
+      "share_sum": 1.0
+    }
+  ],
+  "raw_sha256": "3ef26619430a93ee4d126bc46e91699fe6f2b15ea7b8e830f0a565e32caaa224",
+  "processed_sha256": "209dacf63203346e510cbc3c71676076ecc55a3f64098ab96e2044e269a39468",
+  "snapshot_date": "2026-10-19"
+}
