@@ -17,11 +17,11 @@ def geography_models(df):
 
 def render(df, df_all):
     st.header("Geography")
-    st.caption("Shared publication-year, sector and frontier filters apply to this tab. "
-               "The five-year selector further narrows the map, types and accessibility. "
-               "The time chart compares the filtered records across 2011–2025; "
-               "a restricted year range can leave periods partial or empty. "
-               "Country shares use all known-origin records matching the shared filters.")
+    st.markdown(
+        "Explore where notable AI models are developed, compare country shares across five-year periods, "
+        "and drill down into model details. "
+        "*Year, sector and frontier filters apply.*"
+    )
     try:
         models = geography_models(df)
     except ValueError as error:

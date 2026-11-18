@@ -35,66 +35,50 @@ This question is arguable because the data supports two competing interpretation
 
 ---
 
-## Geography integration
+## Geography tab
 
-This existing `geography` checkout uses branch `feature-geography`. The group app calls `tabs/geography.py`, which imports `src/views.py`. Keep the existing `src/` structure when merging this contribution. The other members' feature branches remain separate; their tabs on main are placeholders.
+The group app passes the shared, filtered data through `app.py → tabs/geography.py → src/views.py`. The adapter preserves all developer-country affiliations from `country_raw`; `src/data.py` normalises country aliases, removes duplicate tags and calculates the Geography results.
 
-## Run locally
+### What the tab shows
 
-From this folder:
+| View | Purpose and interaction |
+| :--- | :--- |
+| World map | Country shares for the selected period, with readable values below. Country codes join the results to map boundaries; developer labels use single-country records. |
+| Shares over time | Compares the three leading countries in 2021–2025, or selected countries, across all three periods. Remaining shares appear as **Other origins**. Click a column to change the selected period. |
+| AI types | Select a type to see its country distribution; click a country bar to explore its models. Types can overlap. |
+| Model details | Shows developers, dates, source origins, country credits and source links; records can be downloaded as CSV. |
+| Open weights | Shows country coverage, accessibility counts and each country's open-weight share. |
+
+### How country shares are calculated
+
+Countries refer to the developing organisations listed in each model's dataset record. Each model counts once; that count is split equally across its distinct developer countries to give **model credits**. **Example:** a record listing USA and France contributes **0.5 to each**; a record listing only USA contributes **1 to USA**.
+
+**Country share (%) = country model credits ÷ all known-origin models in the same period and shared filters × 100.**
+
+For the AI-type chart, both parts of the calculation use only that type. Missing origins are excluded; **Multinational** remains in share totals. Associated-model counts count a joint model once for each country, so these counts differ from credits. Model versions remain separate records.
+
+### Five-year periods and filters
+
+- **2011–2015, 2016–2020 and 2021–2025** are separate, inclusive windows. They reduce annual noise in sparse early data, but hide changes within each period. Totals are not cumulative; the default view is 2021–2025.
+- Shared **year, sector and Epoch frontier-flag filters** apply throughout. A narrow year range can leave a period partial or empty.
+- The period selector controls the map, accessibility, types and details; the time chart compares all three periods.
+- Selecting up to **four countries** changes what is displayed without recalculating the global share denominator. The type selector affects only the type chart and model details.
+
+### Open-weight coverage
+
+The tab checks Epoch's `Open model weights?` field first. If it is missing, it checks `Model accessibility`, which can also label a model as **Open weights**. API-only, hosted, limited-access and unreleased labels are counted as not open weights; unclear values remain **Unknown**. The tab shows country coverage, model counts and open-weight percentages using all models listed for each country. Country selection filters the table; headline totals follow the period and shared filters.
+
+### Run and rebuild
+
+Use Python 3.11 or later from the repository root:
 
 ```bash
 python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-On this Mac the existing interpreter is:
-
-```bash
-/opt/anaconda3/bin/python3 -m streamlit run app.py
-```
-
-## Structure and connection
-
-```text
-geography/
-├── app.py                 Group dashboard entry point and shared filters
-├── common.py              Shared data loading
-├── theme.py               Shared styling
-├── tabs/
-│   └── geography.py       render(df, df_all) adapter used by app.py
-├── src/
-│   ├── views.py           Geography interface
-│   ├── data.py            Attribution and accessibility calculations
-│   ├── charts.py          Geography charts
-│   └── map.py             World map renderer
-├── scripts/
-│   └── make_processed.py  Shared-format processed data builder
-├── data/                  Agreed shared source snapshot and map assets
-├── config.toml            Geography periods and defaults
-├── dashboard.yml          Geography display text
-├── requirements.txt
-└── tests/
-```
-
-The connection is `app.py → tabs/geography.py → src/views.py`. There is no separate features directory in this working folder. The template's other feature tabs are placeholders.
-
-Shared year, sector and frontier filters apply to Geography. Five-year windows further filter the results; selecting a narrow year range can make a period partial or empty. Country selections affect display only. Country shares split joint models equally among their distinct source origins. Open-weight coverage describes developer origins, not geographic user access rights.
-
-## Data and checks
-
-The raw CSV is main's agreed 19 October 2026 snapshot: 1,078 records and 47 columns. The processed CSV is regenerated from it with 20 columns; the 15 shared columns retain main's definitions and five extra fields support Geography. The shared processed format preserves original country and organisation tags, model accessibility, weights flags, source links, tasks and source row numbers. The organisation overview continues to use the template's first-listed organisation method; Geography uses fractional country attribution.
+To regenerate the shared processed CSV and validation metadata:
 
 ```bash
 python -m src.pipeline build
-python -m pytest -q
 ```
-
-
-## Dependencies
-
-`requirements.txt` keeps main's Streamlit, pandas and Altair requirements and adds Plotly and PyYAML, which Geography imports. Install the complete file to run every included tab. Tests are in `requirements-dev.txt`. Python 3.11 or later is required for `tomllib`.
-
-## Publishing
-
-This is a local integration. Include the source files, shared shell and documentation together in the Geography branch when preparing a later pull request. Running Streamlit does not push changes.

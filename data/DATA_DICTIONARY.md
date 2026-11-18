@@ -65,12 +65,9 @@
 
 ## 3. Geography calculations and map assets
 
-`src/data.py` prepares the shared processed frame in memory. It trims text, normalises US/USA/UK aliases, deduplicates country/domain tags, removes exact duplicate input rows and excludes invalid dates if present. On the agreed snapshot, no duplicate rows or invalid dates are removed; 19 records have no country and 3 have no domain.
+Geography uses `country_raw` to retain all affiliations. `src/data.py` normalises country aliases and deduplicates tags before calculating results in memory. See the [Geography README section](../README.md#geography-tab) for shares, periods, filters and accessibility logic.
 
-Each known-origin model contributes one model credit, split equally across its distinct country tags. Missing origins are excluded from country-share denominators; Multinational remains in share totals. Selecting countries filters the display without changing those denominators. The shared `country` column continues to use the first origin; Geography uses `country_raw`. Organisation labels on the map use single-origin records because the source does not reliably pair organisations and countries in joint records.
+- `data/geo/country_codes.json`: source country labels mapped to ISO3 codes, keyed by label.
+- `data/geo/world.geojson`: static country polygons keyed by `properties.id` (ISO3), with longitude/latitude coordinates in degrees. Source: `@d3-maps/atlas@1.0.0`, MIT licence. Transform: TopoJSON to GeoJSON using `topojson-client 3.1.0`; Antarctica omitted; coordinates rounded to two decimals. Source URL is recorded in `source-metadata.json`. These assets have no observation dates. Singapore and Hong Kong remain in totals without map polygons.
 
-The analysis periods are 2011–2015, 2016–2020 and 2021–2025, further restricted by the shared year, sector and Epoch frontier filters. Type tags overlap. Open-weight classification prioritises the explicit weights flag, then uses labelled accessibility categories; unknown status remains separate. Country coverage measures developer origins, not where users can access a model. Associated-model counts can count joint models in several countries.
-
-`data/geo/world.geojson` and `data/geo/country_codes.json` are static map support files, not alternative model datasets. Geometry comes from `@d3-maps/atlas@1.0.0` under its bundled MIT licence. Country IDs join the geometry to source labels; coordinates are longitude/latitude degrees, Antarctica is omitted and coordinates are rounded to two decimals. See `data/source-metadata.json` for the source URL and transform. These assets have no observation-time series. Singapore and Hong Kong can appear in the country totals without polygons on this map.
-
-`python -m src.pipeline build` rebuilds the CSV and refreshes `source-metadata.json` and `validation-report.json`, including record counts, country-credit reconciliation and raw/processed SHA-256 hashes. `python -m src.pipeline validate` checks the existing files and refreshes those reports.
+`python -m src.pipeline build` regenerates the processed CSV and refreshes `source-metadata.json` and `validation-report.json` with counts, share checks and file hashes.

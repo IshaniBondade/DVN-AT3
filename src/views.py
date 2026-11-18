@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from html import escape
 from pathlib import Path
 
 import pandas as pd
@@ -13,6 +14,29 @@ from .data import accessibility_by_country, country_summary, distribution_rows, 
 from .settings import data_path, load_dashboard, load_settings
 
 PLOT_CONFIG = {"displayModeBar": False, "scrollZoom": False, "responsive": True}
+
+
+def caption(text: str) -> None:
+    """Keep Geography hints small and consistent, including dynamic source labels."""
+    st.markdown(
+        '<p class="geo-caption" style="font-size:12px;font-style:italic;'
+        'line-height:1.45;color:#8fa0bf;margin:0;">' + escape(text) + '</p>',
+        unsafe_allow_html=True,
+    )
+
+
+def _map_values(summary: pd.DataFrame, countries: list[str] | None = None) -> pd.DataFrame:
+    values = summary[["country", "share", "credit", "associated_models"]].copy()
+    if countries is not None:
+        values = values.set_index("country").reindex(countries).rename_axis("country").reset_index()
+        values[["credit", "associated_models"]] = values[["credit", "associated_models"]].astype(float).fillna(0)
+        values["associated_models"] = values["associated_models"].astype(int)
+        if not summary.empty:
+            values["share"] = values["share"].fillna(0)
+    values["share"] = values["share"].map(lambda value: "No data" if pd.isna(value) else f"{value:.2%}")
+    values["credit"] = values["credit"].map(lambda value: f"{value:.2f}")
+    return values.rename(columns={"country": "Country / region", "share": "Global share",
+                                  "credit": "Model credits*", "associated_models": "Associated models"})
 
 
 @st.cache_data(show_spinner=False)
@@ -89,7 +113,7 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
     all_domains = full_counts["domain"].tolist()
     available = sorted({c for cs in covered["countries"] for c in cs if c != "Multinational"})
     default_countries = [c for c in analysis["default_countries"] if c in available]
-    defaults = {"period": analysis["default_period"], "mode": "All countries", "countries": default_countries, "domain": analysis["default_type"] if analysis["default_type"] in all_domains else all_domains[0], "expanded": False, "open_details": False}
+    defaults = {"period": analysis["default_period"], "mode": "Leading countries", "countries": default_countries, "domain": analysis["default_type"] if analysis["default_type"] in all_domains else all_domains[0], "expanded": False, "open_details": False}
     for name, value in defaults.items():
         st.session_state.setdefault(prefix + name, value)
     if st.session_state[prefix + "domain"] not in all_domains:
@@ -98,13 +122,12 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
     if not 0 <= st.session_state[prefix + "period"] < len(periods):
         st.session_state[prefix + "period"] = analysis["default_period"]
     if show_header:
-        st.caption("AI DATA NARRATIVE STUDIO · GEOGRAPHY")
+        caption("AI DATA NARRATIVE STUDIO · GEOGRAPHY")
         st.title(content["title"])
-        st.caption(content["question"])
+        caption(content["question"])
     with st.container(border=True):
         title_col, period_col = st.columns([2.4, 1])
         title_col.subheader(content["sections"]["map"])
-        title_col.caption("Country shares and model counts are listed below the map. Hover for developer context.")
         with period_col:
             period_index = st.selectbox("Models published during", list(range(len(periods))), format_func=lambda i: f"{periods[i][0]}–{periods[i][1]}", key=prefix + "period")
         start, end = periods[period_index]
@@ -116,60 +139,35 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
         geometry = _read_json(str(geometry_path), geometry_path.stat().st_mtime_ns)
         codes = _read_json(str(codes_path), codes_path.stat().st_mtime_ns)
         render_map(summary, geometry, codes, selected, period_label)
-        st.caption("Darker blue = larger global share. Grey = no recorded models. Countries outside your selection are faded.")
-        st.radio("Country view", ["All countries", "Select countries"], horizontal=True, key=prefix + "mode", label_visibility="collapsed")
+        st.radio("Country view", ["Leading countries", "Select countries"], horizontal=True, key=prefix + "mode", label_visibility="collapsed")
         if st.session_state[prefix + "mode"] == "Select countries":
             st.multiselect("Choose countries / regions", available, max_selections=analysis["max_selected_countries"], key=prefix + "countries", placeholder="Choose up to four countries")
             if not selected:
-                st.info("Choose at least one country below the map, or switch to All countries.")
-            st.caption("Selections apply below. Percentages keep the global denominator.")
-        else:
-            st.caption("All countries / regions · full global distribution")
+                st.info("Choose at least one country below the map, or switch to Leading countries.")
         known_count = int(snapshot["countries"].map(len).gt(0).sum())
         missing = len(snapshot) - known_count
-        st.caption(f"{len(snapshot):,} model records · {known_count:,} with known origins" + (f" · {missing:,} excluded from country shares" if missing else ""))
+        caption(f"{len(snapshot):,} models" + (f" · {missing:,} without country data (excluded from shares)" if missing else ""))
         if not known_count:
             st.warning("No known-origin records in this period. Country shares are unavailable.")
         mapped = {feature["properties"]["id"] for feature in geometry["features"]}
         omitted = [c for c in summary["country"] if codes.get(c) not in mapped]
         if omitted:
-            st.caption("Included in totals but absent from this map’s polygons: " + ", ".join(omitted) + ".")
-        shown_summary = summary if selected is None else summary.loc[summary["country"].isin(selected)]
-        if not shown_summary.empty:
-            values = shown_summary[["country", "share", "credit", "associated_models"]].copy()
-            values["share"] = values["share"].map(lambda value: f"{value:.2%}")
-            values["credit"] = values["credit"].map(lambda value: f"{value:.2f}")
-            values = values.rename(columns={"country": "Country / region", "share": "Global share",
-                                            "credit": "Model credits", "associated_models": "Associated models"})
+            caption("Counted, not mapped: " + ", ".join(omitted) + ".")
+        # Selected values retain zero-record countries; the full table ignores selection.
+        values = _map_values(summary, selected)
+        shown_values = values.head(analysis["leading_countries"]) if selected is None else values
+        shown_countries = shown_values["Country / region"].tolist()
+        credit_note = "* Each model contributes 1 credit, divided equally among its listed developer countries."
+        if not shown_values.empty:
             st.markdown("**Leading country values**" if selected is None else "**Selected country values**")
-            st.table(values.head(5).set_index("Country / region"))
-            with st.expander("All map values — readable without hovering"):
-                st.dataframe(values, hide_index=True, width="stretch")
-    with st.container(border=True):
-        st.subheader("Model accessibility · open weights")
-        st.caption(f"{period_label} · all AI types · global country coverage")
-        accessibility = accessibility_by_country(snapshot)
-        open_countries = int(accessibility["Open weights"].gt(0).sum())
-        open_models = int(snapshot["open_weight_status"].eq("Open weights").sum())
-        unknown_models = int(snapshot["open_weight_status"].eq("Unknown").sum())
-        country_metric, model_metric, unknown_metric = st.columns(3)
-        country_metric.metric("Countries with open-weight models", f"{open_countries} / {len(accessibility)}")
-        model_metric.metric("Open-weight model records", f"{open_models:,}")
-        unknown_metric.metric("Unknown weight status", f"{unknown_models:,}")
-        st.caption("A country is counted when at least one associated model has open weights. "
-                   "This describes developer origins, not where users are permitted to access models. "
-                   "Open weights includes unrestricted, non-commercial and restricted-use releases; it does not imply an open-source licence.")
-        if unknown_models == len(snapshot):
-            st.info("Weight accessibility is unavailable for this period. Supply Model accessibility or Open model weights? in the source data and rebuild the processed file.")
-        shown_accessibility = accessibility if selected is None else accessibility.loc[accessibility["country"].isin(selected)]
-        if not shown_accessibility.empty:
-            st.dataframe(shown_accessibility.rename(columns={"country": "Country / region"}),
-                         hide_index=True, width="stretch",
-                         column_config={"Open-weight share": st.column_config.NumberColumn(format="percent")})
-        categories = snapshot["model_accessibility"].replace("", "Unknown").value_counts()
-        with st.expander("Model accessibility categories and counting method"):
-            st.dataframe(categories.rename_axis("Model accessibility").reset_index(name="Model records"), hide_index=True, width="stretch")
-            st.write("The explicit Open model weights? flag takes precedence. Where it is missing, labelled open-weight releases count as open; API, hosted, limited-access and unreleased models count as not open weights. Other values remain unknown. Country rows count joint models once for each associated origin, so rows can sum above the global model count. Multinational and missing origins are excluded from country coverage. Open-weight share uses all associated models, including unknown status, as its denominator. Country selection filters the table; headline counts remain global.")
+            st.table(shown_values.set_index("Country / region"))
+            caption(credit_note)
+        all_countries = sorted(set(available) | set(summary["country"]))
+        all_values = _map_values(summary, all_countries)
+        if not all_values.empty:
+            with st.expander("All map values"):
+                st.dataframe(all_values, hide_index=True, width="stretch")
+                caption(credit_note)
     left, right = st.columns([.85, 1.15], gap="medium")
     latest = in_period(models, *periods[-1])
     leaders = country_summary(latest)
@@ -177,10 +175,10 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
     compare = leaders if selected is None else selected
     with left, st.container(border=True):
         st.subheader(content["sections"]["trend"])
-        st.caption(f"{periods[-1][0]}–{periods[-1][1]} leaders + all other origins" if selected is None else "Selected countries + all other origins")
+        caption(f"{periods[-1][0]}–{periods[-1][1]} leaders + all other origins" if selected is None else "Selected countries + all other origins")
         trend = shares_over_time(models, periods, compare)
         st.plotly_chart(trend_chart(trend, compare, periods, period_index), use_container_width=True, theme=None, config=PLOT_CONFIG, key=prefix + "trend", on_select=lambda: _select_period(prefix), selection_mode="points")
-        st.caption(f"Map period: {period_label} · click a column to change the shared period.")
+        caption(f"{period_label} · Click a bar to change period")
         period_labels = [f"{a}–{b}" for a, b in periods]
         trend_values = trend.pivot(index="country", columns="period", values="share").reindex(
             index=[*compare, "Other origins"], columns=period_labels)
@@ -188,7 +186,7 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
             lambda value: "No data" if pd.isna(value) else f"{value:.1%}"))
         trend_values.index.name = "Country / region"
         trend_values.columns.name = None
-        st.caption("All chart segments · global share (%). No data means no known-origin records in that period.")
+        caption("Global share (%) · No data = no known origins")
         st.table(trend_values)
         first = country_summary(in_period(models, *periods[0]))
         last = country_summary(latest)
@@ -202,7 +200,7 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
             st.dataframe(pd.DataFrame(sample), hide_index=True, width="stretch")
     with right, st.container(border=True):
         st.subheader(content["sections"]["types"])
-        st.caption(f"{period_label} · choose a type → explore its country distribution")
+        caption(f"{period_label} · Select an AI type")
         counts = domain_counts(snapshot, all_domains).set_index("domain")["records"].to_dict()
         st.markdown(f"**All {len(all_domains)} AI types** · numbers are model records")
         domain = st.session_state[prefix + "domain"]
@@ -215,7 +213,7 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
         type_summary = country_summary(type_models)
         st.markdown(f"**{domain} → countries**")
         type_known = int(type_models["countries"].map(len).gt(0).sum())
-        st.caption(f"{len(type_models):,} model records · {type_known:,} with known origins")
+        caption(f"{len(type_models):,} models · {type_known:,} with country data")
         if type_summary.empty:
             st.info("No models with known origins for this type in this period.")
         else:
@@ -224,7 +222,34 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
             st.plotly_chart(type_distribution(shown, domain), use_container_width=True, theme=None, config=PLOT_CONFIG, key=prefix + "distribution", on_select=lambda: _select_country(prefix), selection_mode="points")
             if selected is None and len(type_summary) > analysis["leading_countries"]:
                 st.checkbox(f"Show all {len(type_summary)} countries / regions", key=prefix + "expanded")
-            st.caption("Click a country bar for model details. Types overlap; a model may have several tags.")
+            caption("Click a country for models · Types overlap")
+    with st.container(border=True):
+        st.subheader("How are these models made available?")
+        caption(f"{period_label} · all AI types")
+        accessibility = accessibility_by_country(snapshot)
+        shown_accessibility = accessibility.set_index("country").reindex(shown_countries)
+        count_columns = ["Open weights", "Not open weights", "Unknown", "Total models"]
+        shown_accessibility[count_columns] = shown_accessibility[count_columns].astype(float).fillna(0).astype(int)
+        shown_accessibility["Open-weight share"] = shown_accessibility["Open-weight share"].map(
+            lambda value: "No data" if pd.isna(value) else f"{value:.2%}")
+        if not shown_accessibility.empty:
+            st.markdown("**Leading country values**" if selected is None else "**Selected country values**")
+            st.dataframe(shown_accessibility.rename_axis("Country / region").reset_index(),
+                         hide_index=True, width="stretch")
+        with st.expander("Accessibility and counting"):
+            open_countries = int(accessibility["Open weights"].gt(0).sum())
+            open_models = int(snapshot["open_weight_status"].eq("Open weights").sum())
+            unknown_models = int(snapshot["open_weight_status"].eq("Unknown").sum())
+            country_metric, model_metric, unknown_metric = st.columns(3)
+            country_metric.metric("Countries with open-weight models", f"{open_countries} / {len(accessibility)}")
+            model_metric.metric("Open-weight model records", f"{open_models:,}")
+            unknown_metric.metric("Unknown weight status", f"{unknown_models:,}")
+            categories = snapshot["model_accessibility"].replace("", "Unknown").value_counts()
+            st.dataframe(categories.rename_axis("Model accessibility").reset_index(name="Model records"),
+                         hide_index=True, width="stretch")
+            caption("Weights flag first; accessibility labels fill gaps. "
+                    "Open-weight share = open-weight models ÷ all models per country, including unknowns. "
+                    "Joint models count in each listed country; summary totals are global.")
     # Details use the exact current type/period/country and expose source records.
     detail_options = type_summary["country"].tolist()
     if selected is not None:
@@ -238,14 +263,15 @@ def render(models: pd.DataFrame | None = None, *, key_prefix: str = "geo_", show
             numerator = float(records["country_credit"].sum())
             denominator = type_known
             st.markdown(f"**{country}: {numerator:.4f} model credits ÷ {denominator:,} known-origin {domain.lower()} records = {numerator / denominator:.1%}**")
-            st.caption(f"{len(records):,} associated records. Joint-country models contribute fractions; versions are separate records.")
+            caption(f"{len(records):,} models · Joint-country credits are split")
             display = records.rename(columns={"model": "Model / version", "organization": "Developer", "publication_date": "Published", "country": "Source origins", "domain": "AI types", "task": "Tasks", "model_accessibility": "Model accessibility", "open_weight_status": "Weight status", "country_credit": "Country credit", "link": "Source", "record_id": "Record ID", "source_record": "Source record"})
             st.dataframe(display, hide_index=True, width="stretch", height=310, column_config={"Source": st.column_config.LinkColumn("Source", display_text="Open source"), "Country credit": st.column_config.NumberColumn(format="%.4f")})
             st.download_button("Download these model records", data=records.to_csv(index=False).encode("utf-8"), file_name="geography-model-records.csv", mime="text/csv", key=prefix + "download")
     with st.expander("Source and counting method"):
-        st.markdown(f"Source: [Epoch AI notable models]({config['data']['source_url']}). Bundled snapshot: {config['data']['snapshot_date']}. The dataset is curated and not a census of all AI development.")
-        st.write("Each known-origin record contributes one global model credit, split equally across its distinct country/region tags. Country filters never change the global denominator. Missing origins are excluded from shares; Multinational remains in totals. Type tags overlap, but country shares within each type sum to 100%.")
-        st.write("Geography follows developers’ source affiliations, not training hardware location, ownership or national capability. Map organisation labels and top developers use single-origin records only; the source does not reliably pair each organisation with each country for joint records. Aliases are not consolidated.")
-        st.write("The map and time chart cover all AI types. The type selector affects only the type distribution and model details. Model versions and previews remain separate records.")
-        st.json(models.attrs.get("validation", {}), expanded=False)
-    st.caption(f"Epoch AI · CC BY 4.0 · Snapshot: {config['data']['snapshot_date']} · Country/region labels follow the source")
+        st.markdown(f"[Epoch AI notable models]({config['data']['source_url']}) · Snapshot: {config['data']['snapshot_date']}. Curated dataset; not all AI development.")
+        st.markdown(
+            "- Each model counts once, split equally across its listed developer countries. Country selection keeps the global denominator.\n"
+            "- Missing origins excluded; Multinational included in shares. Types overlap; versions count separately.\n"
+            "- Map and trend cover all types; type selection changes the type chart and model details.\n"
+        )
+    caption(f"Epoch AI · CC BY 4.0 · Snapshot: {config['data']['snapshot_date']}")
