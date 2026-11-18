@@ -18,6 +18,7 @@ This question is arguable because the data supports two competing interpretation
 1. **As a** Senior AI Policy Analyst, **I want to** compare the share of notable AI models released by top organisations against their share of total training compute, **so that** I can determine whether model volume masks underlying resource concentration.
 2. **As a** Senior AI Policy Analyst, **I want to** filter AI model releases by publication year, organisational sector, and frontier compute thresholds, **so that** I can evaluate whether new entrants are breaking into the frontier tier or falling behind since 2020.
 3. **As a** Senior AI Policy Analyst, **I want to** examine the geographic distribution of frontier AI development across countries and 5-year periods, **so that** I can identify regional concentration risks and dependencies in global AI governance.
+4. **As a** Senior AI Policy Analyst, **I want to** see how the number of organisations releasing frontier AI models has changed year by year, **so that** I can tell whether development is concentrating in a few players or spreading out over time.
 
 ---
 
